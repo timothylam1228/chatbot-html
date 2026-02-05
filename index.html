@@ -1,97 +1,129 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Coze Chatbot</title>
-</head>
-<body>
+  <head>
+    <title>HKU Genie</title>
+    <link rel="stylesheet" href="coze.css" />
+  </head>
+  <body id="coze-chatbot">
     <script>
-        // ========================================
-        // Configuration - Change shortcode only
-        // ========================================
-        const BOT_SHORTCODE = "SIGC_BOT";
-        const BACKEND_URL = "https://coze-vpk45rs46a-df.a.run.app";
+      // ========================================
+      // Configuration - Change shortcode only
+      // ========================================
+      const BOT_SHORTCODE = "SIGC_BOT";
+      const BACKEND_URL = "https://coze-vpk45rs46a-df.a.run.app";
 
-        // ========================================
-        // API Functions
-        // ========================================
-        const api = {
-            async getConfig() {
-                const res = await fetch(`${BACKEND_URL}/config`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ shortcode: BOT_SHORTCODE })
-                });
+      // ========================================
+      // API Functions
+      // ========================================
 
-                if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`);
-                return res.json();
-            },
+      const api = {
+        async getConfig() {
+          const res = await fetch(`${BACKEND_URL}/config`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ shortcode: BOT_SHORTCODE }),
+          });
 
-            async getToken() {
-                const res = await fetch(`${BACKEND_URL}/token`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ shortcode: BOT_SHORTCODE })
-                });
+          if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`);
+          return res.json();
+        },
 
-                if (!res.ok) throw new Error(`Token fetch failed: ${res.status}`);
-                return res.json();
-            }
-        };
-
-        // ========================================
-        // SDK URLs
-        // ========================================
-        const SDK_URLS = {
-            com: "https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.17/libs/oversea/index.js",
-            cn: "https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js"
-        };
-
-        // ========================================
-        // Initialize Bot
-        // ========================================
-        (async () => {
+        async getToken() {
+          const storageKey = `coze_session_${BOT_SHORTCODE}`;
+          let session_name = null;
+          try {
+            session_name = localStorage.getItem(storageKey);
+          } catch (e) {}
+          if (!session_name) {
+            const generated =
+              window.crypto && typeof window.crypto.randomUUID === "function"
+                ? window.crypto.randomUUID()
+                : `s_${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
+            session_name = `${BOT_SHORTCODE}_${generated}`;
             try {
-                const config = await api.getConfig();
-                const tokenData = await api.getToken();
+              localStorage.setItem(storageKey, session_name);
+            } catch (e) {}
+          }
+          const res = await fetch(`${BACKEND_URL}/token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              shortcode: BOT_SHORTCODE,
+              session_name: session_name,
+            }),
+          });
 
-                const script = document.createElement("script");
-                script.src = SDK_URLS[config.region];
-                script.onload = () => {
-                    new CozeWebSDK.WebChatClient({
-                        config: { bot_id: config.bot_id },
-                        componentProps: { title: "SIGC Genie" },
-                        auth: {
-                            type: "token",
-                            token: tokenData.access_token,
-                            async onRefreshToken() {
-                                const t = await api.getToken();
-                                return t.access_token;
-                            }
-                        },
-                        ui: {
-                            base: {
-                                icon: "https://www.socsc.hku.hk/images/msda/hku_msda_chatbot.jpg",
-                                layout: "pc",
-                                zIndex: 1000
-                            },
-                            footer: {
-                                isShow: true,
-                                expressionText: "Powered by ESSAA Limited",
-                                linkvars: {
-                                    name: { text: "Creato", link: "https://www.creatogether.app/" }
-                                }
-                            }
-                        },
-                        asstBtn: { isNeed: true }
-                    });
-                };
-                script.onerror = () => console.error("SDK load failed");
-                document.head.appendChild(script);
+          if (!res.ok) throw new Error(`Token fetch failed: ${res.status}`);
+          return res.json();
+        },
+      };
 
-            } catch (error) {
-                console.error("Initialization failed:", error);
-            }
-        })();
+      // ========================================
+      // SDK URLs
+      // ========================================
+      const SDK_URLS = {
+        com: "https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.17/libs/oversea/index.js",
+        cn: "https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js",
+      };
+
+      // ========================================
+      // Initialize Bot
+      // ========================================
+      (async () => {
+        try {
+          const config = await api.getConfig();
+          const tokenData = await api.getToken();
+          const session_name = localStorage.getItem(
+            `coze_session_${BOT_SHORTCODE}`
+          );
+
+          const script = document.createElement("script");
+          script.src = SDK_URLS[config.region];
+          script.onload = () => {
+            new CozeWebSDK.WebChatClient({
+              config: { bot_id: config.bot_id },
+              componentProps: { title: "MSDA Genie" },
+              userInfo: {
+                id: session_name, // 用户ID
+                url: "https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/coze-logo.png", // 用户头像URL
+                nickname: "User", // 用户昵称
+              },
+              auth: {
+                type: "token",
+                token: tokenData.access_token,
+                async onRefreshToken() {
+                  const t = await api.getToken();
+                  return t.access_token;
+                },
+              },
+
+              ui: {
+                base: {
+                  icon: "https://www.socsc.hku.hk/images/msda/hku_msda_chatbot.jpg",
+                  layout: "pc",
+                  zIndex: 1000,
+                  backgroundColor: "#c53131",
+                },
+                footer: {
+                  isShow: true,
+                  expressionText: "Powered by ESSAA Limited",
+                  linkvars: {
+                    name: {
+                      text: "Creato",
+                      link: "https://www.creatogether.app/",
+                    },
+                  },
+                },
+              },
+              asstBtn: { isNeed: false },
+            });
+          };
+          script.onerror = () => console.error("SDK load failed");
+          document.head.appendChild(script);
+        } catch (error) {
+          console.error("Initialization failed:", error);
+        }
+      })();
     </script>
-</body>
+  </body>
 </html>
