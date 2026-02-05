@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>SIGC Chatbot</title>
+    <title>Coze Chatbot</title>
     <link rel="stylesheet" href="coze.css" />
   </head>
   <body id="coze-chatbot">
@@ -80,7 +80,7 @@
           const script = document.createElement("script");
           script.src = SDK_URLS[config.region];
           script.onload = () => {
-            new CozeWebSDK.WebChatClient({
+            window.cozeWebSDK = new CozeWebSDK.WebChatClient({
               config: { bot_id: config.bot_id },
               componentProps: { title: "MSDA Genie" },
               userInfo: {
@@ -92,15 +92,13 @@
                 type: "token",
                 token: tokenData.access_token,
                 async onRefreshToken() {
-                  const t = await api.getToken();
-                  return t.access_token;
+                  tokenData.access_token;
                 },
               },
 
               ui: {
                 base: {
                   icon: "https://www.socsc.hku.hk/images/msda/hku_msda_chatbot.jpg",
-                  layout: "pc",
                   zIndex: 1000,
                   backgroundColor: "#c53131",
                 },
@@ -117,11 +115,16 @@
               },
               asstBtn: { isNeed: false },
             });
+            window.cozeWebSDK.showChatBot();
           };
           script.onerror = () => console.error("SDK load failed");
           document.head.appendChild(script);
         } catch (error) {
           console.error("Initialization failed:", error);
+        }
+        if (window.cozeChatClient) {
+          window.cozeChatClient.showChatBot();
+          return;
         }
       })();
     </script>
