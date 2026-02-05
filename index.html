@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
     <title>Coze Chatbot</title>
     <link rel="stylesheet" href="coze.css" />
   </head>
-  <body id="coze-chatbot">
+  <body>
+    <!-- <div id="hku-chatbot"></div>  -->
+    <style>
+      .give-freely-root {
+        width: 400px;
+      }
+    </style>
     <script>
       // ========================================
       // Configuration - Change shortcode only
@@ -81,8 +92,7 @@
           script.src = SDK_URLS[config.region];
           script.onload = () => {
             window.cozeWebSDK = new CozeWebSDK.WebChatClient({
-              config: { bot_id: config.bot_id },
-              componentProps: { title: "MSDA Genie" },
+              config: { bot_id: config.bot_id, isIframe: false },
               userInfo: {
                 id: session_name, // 用户ID
                 url: "https://lf-coze-web-cdn.coze.cn/obj/eden-cn/lm-lgvj/ljhwZthlaukjlkulzlp/coze/coze-logo.png", // 用户头像URL
@@ -95,8 +105,11 @@
                   tokenData.access_token;
                 },
               },
-
               ui: {
+                // asstBtn: {
+                //   isNeed: false, // 隐藏悬浮球
+                // },
+                className: "hku-chatbot",
                 base: {
                   icon: "https://www.socsc.hku.hk/images/msda/hku_msda_chatbot.jpg",
                   zIndex: 1000,
@@ -112,8 +125,13 @@
                     },
                   },
                 },
+                chatBot: {
+                  title: "MSDA Genie",
+                  isNeedAddNewConversation: true,
+                  isNeedQuote: true,
+                  el: document.getElementById("hku-chatbot"),
+                },
               },
-              asstBtn: { isNeed: false },
             });
             window.cozeWebSDK.showChatBot();
           };
