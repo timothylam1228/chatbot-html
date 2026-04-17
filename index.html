@@ -1,145 +1,40 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <title>HKU Genie</title>
-    </head>
-    <body>
-        <script>
-            // ========================================
-            // Configuration - Change shortcode only
-            // ========================================
-            const BOT_SHORTCODE = "SIGC_BOT";
-            const BACKEND_URL = "https://coze-vpk45rs46a-df.a.run.app";
+  <style>
+    /* Desktop-specific adjustments */
+    @media screen and (min-width: 1024px) {
+      #fastgpt-chatbot-window {
+        /* Adjust these values to your preferred size */
+        width: 500px !important;
+        height: 80vh !important;
 
-            // ========================================
-            // API Functions
-            // ========================================
+        /* Optional: Adjust the positioning if the larger size overlaps UI elements */
+        bottom: 80px !important;
+        right: 20px !important;
+      }
+    }
 
-            const api = {
-                async getConfig() {
-                    const res = await fetch(`${BACKEND_URL}/config`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ shortcode: BOT_SHORTCODE }),
-                    });
-
-                    if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`);
-                    return res.json();
-                },
-
-                async getToken() {
-                    const storageKey = `coze_session_${BOT_SHORTCODE}`;
-                    let session_name = null;
-                    try {
-                        session_name = localStorage.getItem(storageKey);
-                    } catch (e) {}
-                    if (!session_name) {
-                        const generated =
-                            window.crypto && typeof window.crypto.randomUUID === "function"
-                                ? window.crypto.randomUUID()
-                                : `s_${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
-
-                        session_name = `${BOT_SHORTCODE}_${generated}`;
-                        try {
-                            localStorage.setItem(storageKey, session_name);
-                        } catch (e) {}
-                    }
-                    const res = await fetch(`${BACKEND_URL}/token`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            shortcode: BOT_SHORTCODE,
-                            session_name: session_name,
-                        }),
-                    });
-
-                    if (!res.ok) throw new Error(`Token fetch failed: ${res.status}`);
-                    return res.json();
-                },
-            };
-
-            // ========================================
-            // SDK URLs
-            // ========================================
-            const SDK_URLS = {
-                com: "https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.17/libs/oversea/index.js",
-                cn: "https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/1.2.0-beta.20/libs/cn/index.js",
-            };
-
-            // ========================================
-            // Initialize Bot
-            // ========================================
-            (async () => {
-                try {
-                    const config = await api.getConfig();
-                    const tokenData = await api.getToken();
-                    const session_name = localStorage.getItem(`coze_session_${BOT_SHORTCODE}`);
-
-                    const script = document.createElement("script");
-                    script.src = SDK_URLS[config.region];
-                    script.onload = () => {
-                        const conversion_id =
-                            window.crypto && typeof window.crypto.randomUUID === "function"
-                                ? window.crypto.randomUUID()
-                                : `s_${Date.now()}_${Math.floor(Math.random() * 1e9)}`;
-
-                        window.cozeWebSDK = new CozeWebSDK.WebChatClient({
-                            config: {
-                                bot_id: config.bot_id,
-                                isIframe: false,
-                                botInfo: {
-                                    parameters: {
-                                        conversation_id: conversion_id,
-                                    },
-                                },
-                            },
-                            auth: {
-                                type: "token",
-                                token: tokenData.access_token,
-                                async onRefreshToken() {
-                                    tokenData.access_token;
-                                },
-                                param: {},
-                            },
-                            ui: {
-                                className: "hku-chatbot",
-                                base: {
-                                    icon: "https://www.socsc.hku.hk/images/msda/hku_msda_chatbot.jpg",
-                                    zIndex: 1000,
-                                    backgroundColor: "#c53131",
-                                },
-                                footer: {
-                                    isShow: true,
-                                    expressionText: "Powered by ESSAA Limited",
-                                    linkvars: {
-                                        name: {
-                                            text: "Creato",
-                                            link: "https://www.creatogether.app/",
-                                        },
-                                    },
-                                },
-                                chatBot: {
-                                    title: "SIGC Genie",
-                                    isNeedAddNewConversation: true,
-                                    isNeedQuote: true,
-                                    el: document.getElementById("hku-chatbot"),
-                                },
-                            },
-                        });
-                        window.cozeWebSDK.showChatBot();
-                    };
-                    script.onerror = () => console.error("SDK load failed");
-                    document.head.appendChild(script);
-                } catch (error) {
-                    console.error("Initialization failed:", error);
-                }
-                if (window.cozeChatClient) {
-                    window.cozeChatClient.showChatBot();
-                    return;
-                }
-            })();
-        </script>
-    </body>
+    /* Optional: Make the trigger button slightly larger to match the desktop feel */
+  </style>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>HKU Genie</title>
+  </head>
+  <body>
+    <script
+      type="text/javascript"
+      src="https://cloud.fastgpt.io/js/iframe.js"
+      id="chatbot-iframe"
+      data-bot-src="https://cloud.fastgpt.io/chat/share?shareId=lgz4Ljb7gbnfs83mmbtRYDgl"
+      data-default-open="true"
+      data-drag="true"
+      data-open-icon="data:image/svg+xml;base64,PHN2ZyB0PSIxNjkwNTMyNzg1NjY0IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjQxMzIiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNNTEyIDMyQzI0Ny4wNCAzMiAzMiAyMjQgMzIgNDY0QTQxMC4yNCA0MTAuMjQgMCAwIDAgMTcyLjQ4IDc2OEwxNjAgOTY1LjEyYTI1LjI4IDI1LjI4IDAgMCAwIDM5LjA0IDIyLjRsMTY4LTExMkE1MjguNjQgNTI4LjY0IDAgMCAwIDUxMiA4OTZjMjY0Ljk2IDAgNDgwLTE5MiA0ODAtNDMyUzc3Ni45NiAzMiA1MTIgMzJ6IG0yNDQuOCA0MTZsLTM2MS42IDMwMS43NmExMi40OCAxMi40OCAwIDAgMS0xOS44NC0xMi40OGw1OS4yLTIzMy45MmgtMTYwYTEyLjQ4IDEyLjQ4IDAgMCAxLTcuMzYtMjMuMzZsMzYxLjYtMzAxLjc2YTEyLjQ4IDEyLjQ4IDAgMCAxIDE5Ljg0IDEyLjQ4bC01OS4yIDIzMy45MmgxNjBhMTIuNDggMTIuNDggMCAwIDEgOCAyMi4wOHoiIGZpbGw9IiM0ZTgzZmQiIHAtaWQ9IjQxMzMiPjwvcGF0aD48L3N2Zz4="
+      data-close-icon="data:image/svg+xml;base64,PHN2ZyB0PSIxNjkwNTM1NDQxNTI2IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjYzNjciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj48cGF0aCBkPSJNNTEyIDEwMjRBNTEyIDUxMiAwIDEgMSA1MTIgMGE1MTIgNTEyIDAgMCAxIDAgMTAyNHpNMzA1Ljk1NjU3MSAzNzAuMzk1NDI5TDQ0Ny40ODggNTEyIDMwNS45NTY1NzEgNjUzLjYwNDU3MWE0NS41NjggNDUuNTY4IDAgMSAwIDY0LjQzODg1OCA2NC40Mzg4NThMNTEyIDU3Ni41MTJsMTQxLjYwNDU3MSAxNDEuNTMxNDI5YTQ1LjU2OCA0NS41NjggMCAwIDAgNjQuNDM4ODU4LTY0LjQzODg1OEw1NzYuNTEyIDUxMmwxNDEuNTMxNDI5LTE0MS42MDQ1NzFhNDUuNTY4IDQ1LjU2OCAwIDEgMC02NC40Mzg4NTgtNjQuNDM4ODU4TDUxMiA0NDcuNDg4IDM3MC4zOTU0MjkgMzA1Ljk1NjU3MWE0NS41NjggNDUuNTY4IDAgMCAwLTY0LjQzODg1OCA2NC40Mzg4NTh6IiBmaWxsPSIjNGU4M2ZkIiBwLWlkPSI2MzY4Ij48L3BhdGg+PC9zdmc+"
+      defer
+    ></script>
+  </body>
 </html>
