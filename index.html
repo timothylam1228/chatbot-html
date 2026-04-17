@@ -1,20 +1,44 @@
 <!doctype html>
 <html lang="en">
   <style>
-    /* Desktop-specific adjustments */
-    @media screen and (min-width: 1024px) {
-      #fastgpt-chatbot-window {
-        /* Adjust these values to your preferred size */
-        width: 500px !important;
-        height: 80vh !important;
-
-        /* Optional: Adjust the positioning if the larger size overlaps UI elements */
-        bottom: 80px !important;
-        right: 20px !important;
-      }
+    /* 1. Target the Iframe Window */
+    #fastgpt-chatbot-window {
+      /* Mobile/Default: Use percentages to ensure it fits small screens */
+      width: 90vw !important;
+      height: 70vh !important;
+      max-width: 375px; /* Standard mobile width */
+      max-height: 667px;
+      transition: all 0.3s ease; /* Smooth transition when resizing window */
     }
 
-    /* Optional: Make the trigger button slightly larger to match the desktop feel */
+    /* 2. Desktop Scaling (Screens wider than 1024px) */
+    @media screen and (min-width: 1024px) {
+      #fastgpt-chatbot-window {
+        /* Larger Desktop Dimensions */
+        width: 550px !important;
+        height: 80vh !important;
+
+        /* Overriding max-constraints for desktop */
+        max-width: 800px !important;
+        max-height: 900px !important;
+
+        /* Adjust distance from the edge if needed */
+        right: 30px !important;
+        bottom: 100px !important;
+      }
+
+      /* Make the floating button larger on desktop */
+    }
+
+    /* 3. Handling Small Mobile Screens (Optional) */
+    @media screen and (max-width: 480px) {
+      #fastgpt-chatbot-window {
+        width: 95vw !important;
+        height: 85vh !important;
+        right: 2.5vw !important; /* Center slightly */
+        bottom: 80px !important;
+      }
+    }
   </style>
   <head>
     <meta charset="utf-8" />
